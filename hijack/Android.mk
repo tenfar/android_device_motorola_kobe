@@ -1,6 +1,6 @@
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(TARGET_DEVICE),umts_jordan)
+ifeq ($(TARGET_DEVICE),umts_kobe)
 
 include $(CLEAR_VARS)
 
