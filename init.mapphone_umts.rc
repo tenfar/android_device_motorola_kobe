@@ -3,9 +3,9 @@ on init
 # Backward compatibility
     symlink /dev /dev/netmux
 # prepare generic keypad name
-    exec /system/bin/init_prep_keypad.sh
+    exec /init_prep_keypad.sh
     mount yaffs2 mtd@system /system ro remount
-    mount ext3 mmc@system /system ro remount
+    mount ext3 /dev/block/mmcblk1p21 /system ro remount
 
     mount rootfs rootfs / rw remount
 
@@ -17,7 +17,7 @@ on init
 # Create mountpoints and mount tmpfs
     mkdir /pds 0775 system system
     mkdir /tmp 0777 system system
-    mount tmpfs tmpfs /tmp size=4m
+    mount tmpfs tmpfs /tmp size=2m
 
 # Configure kernel options
     # Enable automatic power control for EHCI USB IPC
@@ -39,8 +39,8 @@ on init
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 250000
     write /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold 86
     write /sys/devices/system/cpu/cpu0/cpufreq/ondemand/sampling_rate 46875
-    write /sys/power/sr_vdd1_autocomp 0
-    write /sys/power/sr_vdd2_autocomp 0
+    write /sys/power/sr_vdd1_autocomp 1
+    write /sys/power/sr_vdd2_autocomp 1
     write /sys/power/enable_abb_mode 1
 
 # Change ownership for vibrators
@@ -55,20 +55,42 @@ on init
     # mount /pds as r/w
     # We chown/chmod /pds again so because mount is run as root + defaults
     mount yaffs2 mtd@pds /pds nosuid nodev no-checkpoint
+    mount ext3 /dev/block/mmcblk1p7 /pds nosuid nodev
     exec /system/bin/logwrapper /system/bin/mount_ext3.sh pds /pds
     chown system system /pds
     chmod 0775 /pds
-    mkdir /pds/comm_drv
-    chown radio radio /pds/comm_drv
-    chmod 0770 /pds/comm_drv
-    mkdir /pds/public
+    mkdir /pds/comm_drv 0770 radio radio
+    mkdir /pds/public 0775 system shell
     chown system shell /pds/public
-    chmod 0775 /pds/public
+
+# Mount preinstall partition
+    mkdir /preinstall 0771 system system
+    exec /system/bin/logwrapper /system/bin/mount_ext3.sh preinstall /preinstall
+    chmod 0771 /preinstall
+    chown system system /preinstall
 
 # Create basic filesystem structure
     # create moto specific dirs for mystuff
     mkdir /data/download 0775 system system
     mkdir /data/download/mystuff 0775 system system
+
+    # sensor interface 
+    chown compass compass /dev/lis331dlh 
+    chmod 660 /dev/lis331dlh 
+    chown compass compass /dev/kxtf9 
+    chmod 660 /dev/kxtf9 
+    chown compass compass /dev/akm8973 
+    chmod 660 /dev/akm8973 
+    chown compass compass /dev/sfh7743 
+    chmod 660 /dev/sfh7743 
+    chown compass compass /dev/isl29030 
+    chmod 660 /dev/isl29030 
+    chown compass compass /dev/akm8973_dev 
+    chmod 660 /dev/akm8973_dev 
+    chown compass compass /dev/akm8973_aot 
+    chmod 660 /dev/akm8973_aot 
+    chown compass compass /dev/airc 
+    chmod 660 /dev/airc
 
     # create moto specific dirs for wifi
     mkdir /data/system 0771 system system
@@ -162,21 +184,21 @@ on early-boot
 # space on sholes.  These numbers are in pages (4k).  Must be kept
 # in sync with init.rc.  This must be done before the regular init.rc
 # since these properies can't change once set.
-    setprop ro.FOREGROUND_APP_MEM 2048
-    setprop ro.VISIBLE_APP_MEM 3072
-    setprop ro.SECONDARY_SERVER_MEM 6144
-    setprop ro.BACKUP_APP_MEM 6144
-    setprop ro.HOME_APP_MEM 6144
-    setprop ro.HIDDEN_APP_MEM 7168
-    setprop ro.CONTENT_PROVIDER_MEM 8192
-    setprop ro.EMPTY_APP_MEM 8192
+    setprop ro.FOREGROUND_APP_MEM 3072
+    setprop ro.VISIBLE_APP_MEM 4608
+    setprop ro.SECONDARY_SERVER_MEM 9216
+    setprop ro.BACKUP_APP_MEM 9216
+    setprop ro.HOME_APP_MEM 9216
+    setprop ro.HIDDEN_APP_MEM 10752
+    setprop ro.CONTENT_PROVIDER_MEM 12288
+    setprop ro.EMPTY_APP_MEM 12288
  
     class_start media_early_init
 
 on boot
 
 # Overwrite what init.rc selected for the memory killer params to match above.
-    write /sys/module/lowmemorykiller/parameters/minfree 2048,3072,6144,7168,8192,8192
+    write /sys/module/lowmemorykiller/parameters/minfree 3072,4608,9216,10752,12288,12288
 
 # Define Motorola DBVC ATVC Property defaults (failsafe properties)
     setprop ro.sys.atvc_allow_netmon_usb 0
@@ -197,6 +219,10 @@ on boot
    chmod 0660 /sys/class/leds/lcd-backlight/brightness
    chown system system /sys/class/leds/keyboard-backlight/brightness
    chmod 0660 /sys/class/leds/keyboard-backlight/brightness
+   chown system system /sys/class/leds/keyboard1-backlight/brightness
+   chmod 0660 /sys/class/leds/keyboard1-backlight/brightness
+   chown system system /sys/class/leds/keyboard2-backlight/brightness
+   chmod 0660 /sys/class/leds/keyboard2-backlight/brightness
    chown system system /sys/class/leds/button-backlight/brightness
    chmod 0660 /sys/class/leds/button-backlight/brightness
    chown system system /sys/class/leds/red/blink
@@ -209,6 +235,18 @@ on boot
    chown system system /sys/class/leds/torch-flash/camera_strobe
    chown system system /sys/class/leds/torch-flash/flash_light
    chown system system /sys/class/leds/spotlight/brightness
+   chown system system /sys/class/leds/blue/blink
+   chown system system /sys/class/leds/blue/brightness
+   chmod 0660 /sys/class/leds/blue/brightness
+
+# Define TCP buffer sizes for various networks
+#   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
+    setprop net.tcp.buffersize.default 64000,128000,256000,4096,16384,110208 
+    setprop net.tcp.buffersize.wifi 4095,87380,110208,4096,16384,110208 
+    setprop net.tcp.buffersize.umts 64000,128000,256000,4096,16384,110208
+    setprop net.tcp.buffersize.edge 16384,35040,65536,4096,16384,35040
+
+
 
 # Camera related
    chmod 0660 /dev/hplens-omap
@@ -357,6 +395,10 @@ service bplogd_daemon /system/usr/bin/bplogd_daemon
     group radio inet log sdcard_rw
     oneshot
 
+service modemlog /system/bin/modemlog
+   class pre-zygote_services
+   oneshot
+
 service ssmgrd /system/xbin/ssmgrd
     class post-zygote_services
     group radio input mot_pwric
@@ -411,10 +453,15 @@ service btdhcpd /system/xbin/dnsmasq -C /etc/btpan.conf
 
 service tcmd /system/bin/tcmd
     class post-zygote_services
-    group mot_tcmd radio mot_pwric input system log camera graphics mot_accy sdcard_rw audio inet bluetooth wifi compass net_bt_admin mot_tombstone mot_tpapi
+    group mot_tcmd radio mot_pwric input system log camera graphics mot_accy sdcard_rw audio inet bluetooth wifi compass net_bt_admin mot_tombstone mot_tpapi mount
     socket local_tcmd stream 0660 mot_tcmd mot_tcmd
     socket batch_socket stream 0600 mot_tcmd mot_tcmd
     oneshot
+
+service tcmdhelp /system/bin/tcmdhelp
+    class post-zygote_services
+    oneshot
+    disabled
 
 # turn on wifi for tcmd step one
 on property:tcmd.load_wlan=1
@@ -444,10 +491,14 @@ on property:tcmd.bt_mod=1
 on property:tcmd.bt_mod=0
     exec /system/bin/rmmod wl127x_test
 
+#execute tcmdhelp
+on property:tcmd.start_tcmdhelp=1
+    start tcmdhelp
+
 service panic_daemon /system/usr/bin/panic_daemon
     class post-zygote_services
     user radio
-    group radio system graphics
+    group radio system graphics sdcard_rw
     socket panic_daemon stream 660 radio radio
     onrestart exec /system/bin/reboot
 
@@ -537,7 +588,6 @@ service pm_init /system/bin/sh /system/usr/bin/pm_init.sh
 service aplogd /system/bin/aplogd
     class post-zygote_services
     socket ap_aol_cmd  stream 666 system system
-    user log
     group log system sdcard_rw
     oneshot
 
@@ -577,6 +627,9 @@ service ecckeydaemon /system/bin/ecckeyd
     disabled
     oneshot
 
+on property:dev.bootcomplete=1
+    start loadpreinstalls
+
 on property:ro.service.start.smc=1
     start smcdaemon
     start ecckeydaemon
@@ -586,5 +639,20 @@ service secclkd /system/bin/secclkd
     socket secclk_socket stream 660 mot_secclkd mot_secclkd
     user mot_tpapi
     group mot_tpapi mot_sec_rtc mot_secclkd
+    oneshot
+
+service dla /system/bin/dla
+    class post-zygote_services
+    oneshot
+
+service bugtogo /system/bin/bugtogo
+    disabled
+    user root
+    oneshot
+    keycodes 114 115
+
+service loadpreinstalls /system/bin/logwrapper /system/bin/loadpreinstalls.sh
+    class post-zygote_services
+    disabled
     oneshot
 

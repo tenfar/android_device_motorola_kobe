@@ -1,0 +1,30 @@
+major minor  #blocks  name	alias
+
+ 179       32    1912832 mmcblk1	
+ 179       33        128 mmcblk1p1	
+ 179       34        512 mmcblk1p2	
+ 179       35        512 mmcblk1p3	
+ 179       36          1 mmcblk1p4	
+ 179       37        512 mmcblk1p5	
+ 179       38        512 mmcblk1p6	
+ 179       39       4096 mmcblk1p7	pds
+ 179       40        512 mmcblk1p8	
+ 179       41        512 mmcblk1p9	
+ 179       42       1024 mmcblk1p10	
+ 179       43       2048 mmcblk1p11	
+ 179       44        512 mmcblk1p12	
+ 179       45        512 mmcblk1p13	
+ 179       46       4096 mmcblk1p14	
+ 179       47       8192 mmcblk1p15	
+ 179       48       8192 mmcblk1p16	recovery
+ 179       49      14336 mmcblk1p17	cdrom
+ 179       50        512 mmcblk1p18	misc
+ 179       51        512 mmcblk1p19	cid
+ 179       52       4096 mmcblk1p20	kpanic
+ 179       53     334848 mmcblk1p21	system
+ 179       54        512 mmcblk1p22	prek
+ 179       55        512 mmcblk1p23	pkbackup
+ 179       56     204800 mmcblk1p24	cache
+ 179       57    1319936 mmcblk1p25	userdata
+ 179        0    1955840 mmcblk0	
+ 179        1    1955775 mmcblk0p1	
