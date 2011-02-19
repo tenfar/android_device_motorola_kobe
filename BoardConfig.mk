@@ -5,12 +5,12 @@
 TARGET_BOARD_PLATFORM := omap3
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeab
-BOARD_CUSTOM_RECOVERY_KEYMAPPING:= ../../device/motorola/umts_jordan/recovery/recovery_ui.c
+BOARD_CUSTOM_RECOVERY_KEYMAPPING:= ../../device/motorola/umts_kobe/recovery/recovery_ui.c
 
 TARGET_NO_BOOTLOADER := false
-TARGET_PREBUILT_KERNEL := device/motorola/umts_jordan/kernel
-TARGET_BOOTLOADER_BOARD_NAME := umts_jordan
-TARGET_PREBUILT_RECOVERY_KERNEL := device/motorola/umts_jordan/recovery-kernel
+TARGET_PREBUILT_KERNEL := device/motorola/umts_kobe/kernel
+TARGET_BOOTLOADER_BOARD_NAME := umts_kobe
+TARGET_PREBUILT_RECOVERY_KERNEL := device/motorola/umts_kobe/recovery-kernel
 BOARD_KERNEL_CMDLINE := console=ttyS2,115200n8 console=ttyMTD10 rw mem=498M@0x80C00000 init=/init ip=off brdrev=P3A androidboot.bootloader=0x0000 mtdparts= mmcparts=mmcblk1:p7(pds),p16(recovery),p17(cdrom),p18(misc),p19(cid),p20(kpanic),p21(system),p22(prek),p23(pkbackup),p24(cache),p25(userdata)
 
 BOARD_KERNEL_BASE := 0x10000000
