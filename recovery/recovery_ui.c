@@ -38,6 +38,7 @@ int device_recovery_start() {
 
 int device_toggle_display(volatile char* key_pressed, int key_code) {
 
+/* we use volumeup key + power key to toggle the display . in defy the keycode for power is KEY_END */
     int alt = key_pressed[KEY_VOLUMEUP];
     if (alt && (key_code == KEY_END))
         return 1;
@@ -46,6 +47,7 @@ int device_toggle_display(volatile char* key_pressed, int key_code) {
 }
 
 int device_reboot_now(volatile char* key_pressed, int key_code) {
+/* when the key volume down and power key  pressed at the same time ,reboot the system */
     return key_pressed[KEY_VOLUMEDOWN] && (key_code == KEY_END); 
 }
 
@@ -63,7 +65,10 @@ int device_handle_key(int key_code, int visible) {
                 return HIGHLIGHT_UP;
 
             case KEY_END:
-                return SELECT_ITEM;
+/*
+when the KEY_END (aka Power key) pressed , return SELECT_ITEM
+*/  
+              return SELECT_ITEM;
             case KEY_LEFTBRACE:
             case 31:
             case BTN_MOUSE:
