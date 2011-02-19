@@ -30,18 +30,27 @@ BOARD_SYSTEM_DEVICE := /dev/block/mmcblk1p21
 BOARD_SYSTEM_FILESYSTEM := ext3
 BOARD_CACHE_DEVICE := /dev/block/mmcblk1p24
 BOARD_CACHE_FILESYSTEM := ext3
+# we define in here where the hijack binary will be . here we use the cdrom partiition
 BOARD_HIJACK_RECOVERY_PATH := /cdrom/
 
 TARGET_NO_BOOT := false
 TARGET_NO_RECOVERY := false
 TARGET_NO_PREINSTALL := true
 
+# you can remove this or define it as false
 BOARD_GOAPK_DEFY := true
+
+# the hijack boot path 
 BOARD_HIJACK_BOOT_PATH := /cdrom/
 BOARD_HIJACK_EXECUTABLES := logwrapper
+# we can open log utils it will gen the log to /sdcard/hijack.log so that we can check the log to see what happens.
 BOARD_HIJACK_LOG_ENABLE := true
+# the defy's flash is a mmc device , i guess so as the bravo . so we need to let the recovery binary to use MMCUTILS.
+
 BOARD_USES_MMCUTILS := true
+
 BOARD_HIJACK_UPDATE_BINARY := /cdrom/update-binary
 BOARD_HIJACK_BOOT_UPDATE_ZIP := /cdrom/update-boot.zip
+# we define the bootstraped recovery from here.
 BOARD_HIJACK_RECOVERY_UPDATE_ZIP := /cdrom/update-recovery.zip
 
