@@ -177,7 +177,7 @@ hijack_log("    remove(%s) executing...", CHARGING_MODE_FILE);
 hijack_log("      returned: %d", result);
 
 hijack_log("    creating(%s) executing...", HIJACK_BYPASS_FILE);
-                result = remove(HIJACK_BYPASS_FILE);
+                result = mark_file(HIJACK_BYPASS_FILE);
 hijack_log("      returned: %d", result);
 
 
@@ -211,7 +211,7 @@ hijack_log("    remove(%s) executing...", RECOVERY_MODE_FILE);
 hijack_log("      returned: %d", result);
 
 hijack_log("    creating(%s) executing...", HIJACK_BYPASS_FILE);
-                result = remove(HIJACK_BYPASS_FILE);
+                result =mark_file(HIJACK_BYPASS_FILE);
 hijack_log("      returned: %d", result);
 
 
