@@ -82,7 +82,7 @@ int remount_root(const char * hijack_exec, int rw);
 int hijack_mount(const char * hijack_exec, const char * dev, const char * mount_point);
 int hijack_mount_ex(const char * hijack_exec, const char * type, const char * dev, const char * mount_point);
 int hijack_umount(const char * hijack_exec, const char * mount_point);
-void hijacK_log(char * format, ...);
+void hijack_log(char * format, ...);
 int mark_file(char * filename);
 
 #endif
