@@ -135,11 +135,10 @@ int main(int argc, char ** argv) {
     }
 
 #ifdef LOG_ENABLE
-    // SCREW THE RULES, IF WE GET HERE WE'RE HIJACKING, AND FROM HERE ON OUT
-    // WE'RE FUCKING WITH ROOT (/) NO MATTER WHAT AT THIS POINT
+    
     remount_root("/system/bin/hijack", 1);
 
-    // OH FUCK YEAH MOUNT
+ 
     mkdir(LOG_MOUNT, S_IRWXU);
     hijack_mount("/system/bin/hijack", LOG_DEVICE, LOG_MOUNT);
 
@@ -162,46 +161,7 @@ hijack_log("      returned: %d", result);
 
 hijack_log("  Entering testing for hijacking!");
 
-        if (0 == stat(HIJACK_BYPASS_FILE, &info)) {
-hijack_log("  Bypassing hijacking");
-            // we basically do nothing here
-        } else {
-
-            if (0 == stat(CHARGING_MODE_FILE, &info)) {
-
-hijack_log("  Charging mode detected!");
-
-                // don't boot into recovery again
-hijack_log("    remove(%s) executing...", CHARGING_MODE_FILE);
-                result = remove(CHARGING_MODE_FILE);
-hijack_log("      returned: %d", result);
-
-hijack_log("    creating(%s) executing...", HIJACK_BYPASS_FILE);
-                result = mark_file(HIJACK_BYPASS_FILE);
-hijack_log("      returned: %d", result);
-
-
-hijack_log("    property_set(%s, %s) executing...", "ctl.stop", "runtime");
-                result = property_set("ctl.stop", "runtime");
-hijack_log("      returned: %d", result);
-
-hijack_log("    property_set(%s, %s) executing...", "ctl.stop", "zygote");
-                result = property_set("ctl.stop", "zygote");
-hijack_log("      returned: %d", result);
-
-hijack_log("    property_set(%s, %s) executing...", "sys.chargeonly.mode", "1");
-                result = property_set("sys.chargeonly.mode", "1");
-hijack_log("      returned: %d", result);
-
-                // use setprop for good measure
-                char * setprop_args[] = { "/system/bin/setprop", "sys.chargeonly.mode", "1", NULL };
-hijack_log("    exec(\"%s %s %s\") executing...", "/system/bin/setprop", "sys.chargeonly.mode", "1");
-                result = exec_and_wait(setprop_args);
-hijack_log("      returned: %d", result);
-
-                return result;
-
-            } else if (0 == stat(RECOVERY_MODE_FILE, &info)) {
+if  (0 == stat(RECOVERY_MODE_FILE, &info)) {
 
 hijack_log("  Recovery mode detected!");
 
@@ -274,94 +234,6 @@ hijack_log("    exec(\"%s %s %s %s\") executing...", UPDATE_BINARY, "2", "0", RE
 hijack_log("      returned: %d", result);
 
                 return result;
-
-            } else {
-
-hijack_log("  Boot mode detected!");
-
-hijack_log("    remount_root(%s, %d) executing...", "/system/bin/hijack", 1);
-                result = remount_root("/system/bin/hijack", 1);
-hijack_log("      returned: %d", result);
-
-hijack_log("    mkdir(%s, %d) executing...", "/cdrom", S_IRWXU);
-                result = mkdir("/cdrom", S_IRWXU);
-hijack_log("      returned: %d", result);
-
-hijack_log("    rename(%s, %s) executing...", "/sbin/adbd", "/sbin/adbd.old");
-                result = rename("/sbin/adbd", "/sbin/adbd.old");
-hijack_log("      returned: %d", result);
-
-hijack_log("    property_set(%s, %s) executing...", "ctl.stop", "runtime");
-                result = property_set("ctl.stop", "runtime");
-hijack_log("      returned: %d", result);
-
-hijack_log("    property_set(%s, %s) executing...", "ctl.stop", "zygote");
-                result = property_set("ctl.stop", "zygote");
-hijack_log("      returned: %d", result);
-
-hijack_log("    property_set(%s, %s) executing...", "persist.service.adb.enable", "1");
-                result = property_set("persist.service.adb.enable", "1");
-hijack_log("      returned: %d", result);
-
-                // get access to our cdrom partition
-hijack_log("    hijack_mount(%s, %s, %s) executing...", "/system/bin/hijack", "/dev/block/mmcblk1p17", "/cdrom");
-                result = hijack_mount("/system/bin/hijack", "/dev/block/mmcblk1p17", "/cdrom");
-hijack_log("      returned: %d", result);
-
-                // have updater unpack our boot partition (will create /sbin/hijack)
-                char * updater_args[] = { UPDATE_BINARY, "2", "0", BOOT_UPDATE_ZIP, NULL };
-hijack_log("    exec(\"%s %s %s %s\") executing...", UPDATE_BINARY, "2", "0", BOOT_UPDATE_ZIP);
-                result = exec_and_wait(updater_args);
-hijack_log("      returned: %d", result);
-
-                // since we have /sbin/hijack, we no longer need /system
-hijack_log("    hijack_umount(%s, %s) executing...", "/sbin/hijack", "/system");
-                result = hijack_umount("/sbin/hijack", "/system");
-hijack_log("      returned: %d", result);
-
-                // now we're done with /cdrom
-hijack_log("    hijack_umount(%s, %s) executing...", "/sbin/hijack", "/cdrom");
-                result = hijack_umount("/sbin/hijack", "/cdrom");
-hijack_log("      returned: %d", result);
-
-                // don't need /data either
-hijack_log("    hijack_umount(%s, %s) executing...", "/sbin/hijack", "/data");
-                result = hijack_umount("/sbin/hijack", "/data");
-hijack_log("      returned: %d", result);
-
-                // now we will attempt to kill EVERYTHING
-                char * hijack_killall_args[] = { "/sbin/hijack.killall", NULL };
-hijack_log("    exec(\"%s\")", "/sbin/hijack.killall");
-                result = exec_and_wait(hijack_killall_args);
-hijack_log("      returned: %d", result);
-
-#ifdef LOG_ENABLE
-                // one last filesystem accounting run
-                char * last_log_dump_args[] = { "/sbin/hijack.log_dump", LOG_PATH, NULL };
-hijack_log("    exec(\"%s %s\") executing...", "/sbin/hijack.log_dump", LOG_PATH);
-                result = exec_and_wait(last_log_dump_args);
-hijack_log("      returned: %d", result);
-#endif
-
-                // now we re-run init (this should never exit)
-#ifdef LOG_ENABLE
-		char * init_args[] = { "/init.new", LOG_PATH, NULL };
-hijack_log("    exec(\"%s %s\") executing...", "/init.new", LOG_PATH);
-#else
-                char * init_args[] = { "/init.new", NULL };
-hijack_log("    exec(\"%s\") executing...", "/init.new");
-#endif
-                result = exec_and_wait(init_args);
-hijack_log("      returned: %d", result);
-
-                // we want to go into recovery mode on next boot if there's a failure
-hijack_log("    mark_file(%s) executing...", RECOVERY_MODE_FILE);
-                result = mark_file(RECOVERY_MODE_FILE);
-hijack_log("      returned: %d", result);
-
-                return result;
-            }
-        }
     }
 
     char real_executable[PATH_MAX];
