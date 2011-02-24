@@ -234,8 +234,8 @@ hijack_log("    exec(\"%s %s %s %s\") executing...", UPDATE_BINARY, "2", "0", RE
 hijack_log("      returned: %d", result);
 
                 return result;
-    }
-
+      }
+   }
     char real_executable[PATH_MAX];
     sprintf(real_executable, "%s.bin", hijacked_executable);
     char ** argp = (char **)malloc(sizeof(char *) * (argc + 1));
