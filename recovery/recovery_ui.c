@@ -38,7 +38,7 @@ int device_recovery_start() {
 
 int device_toggle_display(volatile char* key_pressed, int key_code) {
 
-/* we use volumeup key + power key to toggle the display . in defy the keycode for power is KEY_END 
+/* we use volumeup key + power key to toggle the display . in defy the keycode for power is KEY_END */
     int alt = key_pressed[KEY_VOLUMEUP];
 
     return get_allow_toggle_display() && (key_pressed[KEY_VOLUMEUP] && (key_code == KEY_END));
