@@ -40,12 +40,9 @@ int device_toggle_display(volatile char* key_pressed, int key_code) {
 
 /* we use volumeup key + power key to toggle the display . in defy the keycode for power is KEY_END 
     int alt = key_pressed[KEY_VOLUMEUP];
-    if (alt && (key_code == KEY_END))
-        return 1;
-    return get_allow_toggle_display() && (key_pressed[KEY_VOLUMEUP] && (key_code == KEY_END));
-*/
 
-  return get_allow_toggle_display() && (key_code == KEY_HOME ) ;
+    return get_allow_toggle_display() && (key_pressed[KEY_VOLUMEUP] && (key_code == KEY_END));
+
 }
 
 int device_reboot_now(volatile char* key_pressed, int key_code) {
